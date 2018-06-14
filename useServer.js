@@ -26,27 +26,27 @@ const router = express.Router();
 //criando as rotas
 router.post('/cadastroUsuario', (req, res) => {
     const email = req.body.email;
-    const senha = req.body.senha;    
+    const senha = crypto.criptografar(req.body.senha);    
     dbMysql.cadastroUsuario(res, email, senha);
 });
 
 router.post('/loginUsuario', (req, res) => {
     const email = req.body.email;
-    const senha = req.body.senha;
+    const senha = crypto.criptografar(req.body.senha);
     dbMysql.loginUsuario(res, email, senha);
 });
 
 router.post('/updateEmail', (req, res) => {
     const email = req.body.email;
     const novoEmail = req.body.novoEmail;
-    const senha = req.body.senha;
+    const senha = crypto.criptografar(req.body.senha);
     dbMysql.updateEmail(res, email, novoEmail, senha);
 });
 
 router.post('/updateSenha', (req, res) => {
     const email = req.body.email;
     const antigaSenha = req.body.antigaSenha;
-    const novaSenha = req.body.novaSenha;
+    const novaSenha = crypto.criptografar(req.body.novaSenha);
     dbMysql.updateSenha(res, email, antigaSenha, novaSenha);
 });
 
@@ -58,13 +58,39 @@ router.post('/esqueciSenha', (req, res) => {
     password += chars.charAt(Math.random()*61);
     senhaSHA = SHA256(password);
     senhaCriptografada = crypto.criptografar(senhaSHA);
-    console.log(senhaCriptografada);
-    //dbMysql.esqueciSenha(res, email, password);
+    dbMysql.esqueciSenha(res, email, senhaCriptografada);
+});
+
+router.post('/dadosPessoais', (req, res) => {
+    const email = req.body.email;
+    const nome = req.body.nome;
+    const endereco = req.body.endereco;
+    const complemento = req.body.complemento;
+    const cidade = req.body.cidade;
+    const estado = req.body.estado;
+    const bairro = req.body.bairro;
+    const telefone = req.body.telefone;
+    const cpf = req.body.cpf;
+    const fotoPerfil = req.body.fotoPerfil;
+
+    dbMysql.formPessoal(res, email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil);
+});
+
+router.post('/dadosProfissionais', (req, res) => {
+    const email = req.body.email;
+    const profissao1 = req.body.profissao1;
+    const valor1 = req.body.valor1;    
+    const profissao2 = req.body.profissao2;
+    const valor2 = req.body.valor2;
+
+    dbMysql.formProfissional(res, email, profissao1, valor1, profissao2, valor2);
 });
 
 router.get('/buscaProfissoes', (req, res) => {
     dbMysql.buscaProfissoes(res);
 });
+
+
 
 app.use('/', router);
 

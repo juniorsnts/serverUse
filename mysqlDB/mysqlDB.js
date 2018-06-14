@@ -3,6 +3,10 @@ const nodemailer = require('nodemailer');
 const buscaEmailSenha = "SELECT email, senha FROM usuario WHERE email = ? AND senha = ?";
 const buscaEmail = "SELECT email FROM usuario WHERE email = ?";
 const buscaProfissoes = "SELECT *FROM profissoes ORDER BY profissao ASC";
+const sqlCadastro = "INSERT INTO usuario VALUES (?,?)";
+const insereDadosPessoais = "INSERT INTO dadospessoais VALUES (?,?,?,?,?,?,?,?,?,?)";
+const buscaCpf = "SELECT cpf FROM dadospessoais WHERE cpf = ?";
+const insereDadosProfissionais = "INSERT INTO dadosProfissionais VALUES (?,?,?,?,?)";
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -22,7 +26,7 @@ var obj = {
             }
         });
     },
-
+///////////////////////////cadastro de usuarios ////////////////////////////////////////
     cadastroUsuario: function (res, email, senhaCriptografada){        
         connection.query(buscaEmail, [email], function(error, results){
             if(error){
@@ -32,8 +36,7 @@ var obj = {
                 console.log("Usuario existe, Falha no cadastro");
                 res.json("emailExiste");
             } else if(results.length == 0){
-                console.log("cadastrando usuario");
-                const sqlCadastro = "INSERT INTO usuario VALUES (?,?)";
+                console.log("cadastrando usuario");                
                 connection.query(sqlCadastro, [email, senhaCriptografada], function(error, results){
                     if(error){
                         console.log("erro no cadastro");
@@ -46,7 +49,7 @@ var obj = {
             }
         });
     },
-
+///////////////////////////////////login de usuarios ///////////////////////////////////////////
     loginUsuario: function(res, email, senhaCriptografada){
         connection.query(buscaEmailSenha, [email, senhaCriptografada], function(error, results){
             if(error){
@@ -61,7 +64,7 @@ var obj = {
             }
         });
     },
-
+/////////////////////////////////atualizacao de email no banco //////////////////////////////////
     updateEmail: function(res, antigoEmail, novoEmail, senhaCriptografada){
         connection.query(buscaEmailSenha, [antigoEmail, senhaCriptografada], function(error, results){
             if(error){
@@ -82,7 +85,7 @@ var obj = {
             }
         });      
     },
-
+/////////////////////////////////////atualizacao de senha no banco//////////////////////////////////
     updateSenha: function(res, email, antigaSenha, novaSenhaCriptografada){
         connection.query(buscaEmailSenha, [email, antigaSenha], function(error, results){
             if(error){
@@ -100,15 +103,14 @@ var obj = {
             }
         });       
     },  
-
-    esqueciSenha: function(res, email, senhaGerada){
-        
+/////////////////////////////////////envio de nova senha para email ////////////////////////////////////
+    esqueciSenha: function(res, email, senhaGerada){        
         connection.query(buscaEmail, [email], function(error, results){
             if(error){
                 console.log("Erro no esqueci senha");
                 res.json(error);
             } else if(results.length == 0){
-                console.log("Usuario nao cadastrado (esqueciSenha)");
+                console.log("Usuario nao cadastrado (esqueciSenha): "+email);
                 res.json("semCadastro");
             } else if(results.length == 1){
                 let emailRemetente = "juniorsnts123@gmail.com";
@@ -140,7 +142,7 @@ var obj = {
             }
         });
     },
-
+///////////////////////////////lista todas as profissoes do banco de dados /////////////////////////////
     buscaProfissoes: function(res){
         connection.query(buscaProfissoes, function(error, results){
             if(error){
@@ -150,8 +152,39 @@ var obj = {
                 res.json(results);
             }
         });
-    }
-    
+    },
+//////////////////////////////////////form pessoal trabalhador ////////////////////////////////////////
+    formPessoal: function(res, email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil){
+        connection.query(buscaCpf, [cpf], function(error, results){
+            if(error){
+                console.log("Erro no formPessoal: "+error);
+            } else if(results == 1){
+                console.log("Outro usuario possui esse cpf");
+                res.json("existeCpf");
+            } else if(results == 0){
+                connection.query(insereDadosPessoais, [email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil], function(error, results){
+                    if(error){
+                        console.log("Erro na inserção de dados pessoais: "+error);
+                        res.json(error);
+                    } else {
+                        console.log("dados pessoais inseridos");
+                        res.json("sucesso");        
+                    }
+                });
+            }
+        });
+    },
+///////////////////////////////////////form profissional trabalhador ///////////////////////////////////////
+    formProfissional: function(res, email, profissao1, valor1, profissao2, valor2){
+        connection.query(insereDadosProfissionais, [email, profissao1, valor1, profissao2, valor2], function(error, results){
+            if(error){
+                console.log("Erro na inserção de dados profissionais: "+error);
+            } else {
+                console.log("dados profissionais inseridos");
+                res.json("sucesso");
+            }
+        });
+    }    
 }
 
 module.exports = obj;
