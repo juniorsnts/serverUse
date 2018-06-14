@@ -7,6 +7,7 @@ const sqlCadastro = "INSERT INTO usuario VALUES (?,?)";
 const insereDadosPessoais = "INSERT INTO dadospessoais VALUES (?,?,?,?,?,?,?,?,?,?)";
 const buscaCpf = "SELECT cpf FROM dadospessoais WHERE cpf = ?";
 const insereDadosProfissionais = "INSERT INTO dadosProfissionais VALUES (?,?,?,?,?)";
+const insereLocalizacao = "INSERT INTO localizacao VALUES(?, ?, ?)";
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -184,7 +185,19 @@ var obj = {
                 res.json("sucesso");
             }
         });
-    }    
+    },
+//////////////////////////////////// dados de localizacao do usuario //////////////////////////////////  
+    localizacaoUsuario: function(res, email, latitude, longitude){
+        connection.query(insereLocalizacao, [email, latitude, longitude], function(error, results){
+            if(error){
+                console.log("Erro na inserçao de localizacao: "+error);
+                res.json(error);
+            } else {
+                console.log("Localizacao inserida");
+                res.json("sucesso");
+            }
+        });
+    }
 }
 
 module.exports = obj;

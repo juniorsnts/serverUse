@@ -86,6 +86,14 @@ router.post('/dadosProfissionais', (req, res) => {
     dbMysql.formProfissional(res, email, profissao1, valor1, profissao2, valor2);
 });
 
+router.post('/localizacaoUsuario', (req, res) => {
+    const email = req.body.email;
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
+
+    dbMysql.localizacaoUsuario(res, email, latitude, longitude);
+});
+
 router.get('/buscaProfissoes', (req, res) => {
     dbMysql.buscaProfissoes(res);
 });
