@@ -8,6 +8,9 @@ const insereDadosPessoais = "INSERT INTO dadospessoais VALUES (?,?,?,?,?,?,?,?,?
 const buscaCpf = "SELECT cpf FROM dadospessoais WHERE cpf = ?";
 const insereDadosProfissionais = "INSERT INTO dadosProfissionais VALUES (?,?,?,?,?)";
 const insereLocalizacao = "INSERT INTO localizacao VALUES(?, ?, ?)";
+const selectDadosPessoais = "SELECT *FROM dadospessoais WHERE emailfk = ?";
+const selectDadosProfissionais = "SELECT *FROM dadosprofissionais WHERE emailfk = ?";
+const selectLocalizacao = "SELECT *FROM localizacao WHERE emailfk = ?";
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -197,7 +200,36 @@ var obj = {
                 res.json("sucesso");
             }
         });
+    },
+
+    visualizaDadosPessoais: function(res, email){
+        connection.query(selectDadosPessoais, [email], function(err, results){
+            if(err){
+                console.log("Erro na busca: "+err);
+            } else {
+                res.json(results);
+            }
+        });
+    },
+    visualizarDadosProfissionais: function(res, email){
+        connection.query(selectDadosProfissionais, [email], function(err, results){
+            if(err){
+                console.log("Erro na busca: "+err);
+            } else {
+                res.json(results);
+            }
+        });
+    },
+    visualizarLocalizacao: function(res, email){
+        connection.query(selectLocalizacao, [email], function(err, results){
+            if(err){
+                console.log("Erro na busca: "+err);
+            } else {
+                res.json(results);
+            }
+        });
     }
 }
+
 
 module.exports = obj;

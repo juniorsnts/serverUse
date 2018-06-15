@@ -54,7 +54,7 @@ router.post('/esqueciSenha', (req, res) => {
     const email = req.body.email;
     let password = '';
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    for(var i=0; i<20; i++)
+    for(var i=0; i<6; i++)
     password += chars.charAt(Math.random()*61);
     senhaSHA = SHA256(password);
     senhaCriptografada = crypto.criptografar(senhaSHA);
@@ -94,6 +94,24 @@ router.post('/localizacaoUsuario', (req, res) => {
     dbMysql.localizacaoUsuario(res, email, latitude, longitude);
 });
 
+router.post('/visualizarDadosPessoais', (req, res) => {
+    const email = req.body.email;
+    console.log(email);
+    
+    dbMysql.visualizaDadosPessoais(res, email);
+});
+router.post('/visualizarDadosProfissionais', (req, res) => {
+    const email = req.body.email;
+    console.log(email);
+    
+    dbMysql.visualizarDadosProfissionais(res, email);
+});
+router.post('/visualizarLocalizacao', (req, res) => {
+    const email = req.body.email;
+    console.log(email);
+    
+    dbMysql.visualizarLocalizacao(res, email);
+});
 router.get('/buscaProfissoes', (req, res) => {
     dbMysql.buscaProfissoes(res);
 });
