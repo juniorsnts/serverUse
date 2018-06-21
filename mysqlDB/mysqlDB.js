@@ -4,13 +4,14 @@ const buscaEmailSenha = "SELECT email, senha FROM usuario WHERE email = ? AND se
 const buscaEmail = "SELECT email FROM usuario WHERE email = ?";
 const buscaProfissoes = "SELECT *FROM profissoes ORDER BY profissao ASC";
 const sqlCadastro = "INSERT INTO usuario VALUES (?,?)";
-const insereDadosPessoais = "INSERT INTO dadospessoais VALUES (?,?,?,?,?,?,?,?,?,?)";
+const insereDadosPessoais = "INSERT INTO dadospessoais VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 const buscaCpf = "SELECT cpf FROM dadospessoais WHERE cpf = ?";
 const insereDadosProfissionais = "INSERT INTO dadosProfissionais VALUES (?,?,?,?,?)";
 const insereLocalizacao = "INSERT INTO localizacao VALUES(?, ?, ?)";
 const selectDadosPessoais = "SELECT *FROM dadospessoais WHERE emailfk = ?";
 const selectDadosProfissionais = "SELECT *FROM dadosprofissionais WHERE emailfk = ?";
 const selectLocalizacao = "SELECT *FROM localizacao WHERE emailfk = ?";
+const localizacaoGeral = "SELECT *FROM localizacao";
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -48,6 +49,8 @@ var obj = {
                     } else{
                         console.log("Usuario novo cadastrado");
                         res.json("sucessoCadastro");
+                        let contadorCadastrados = contadorCadastrados++;
+                        console.log("Numero de usuario cadastrados: "+contadorCadastrados);
                     }
                 });
             }
@@ -158,7 +161,7 @@ var obj = {
         });
     },
 //////////////////////////////////////form pessoal trabalhador ////////////////////////////////////////
-    formPessoal: function(res, email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil){
+    formPessoal: function(res, email, nome, endereco, numCasa, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil){
         connection.query(buscaCpf, [cpf], function(error, results){
             if(error){
                 console.log("Erro no formPessoal: "+error);
@@ -166,7 +169,7 @@ var obj = {
                 console.log("Outro usuario possui esse cpf");
                 res.json("existeCpf");
             } else if(results == 0){
-                connection.query(insereDadosPessoais, [email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil], function(error, results){
+                connection.query(insereDadosPessoais, [email, nome, endereco, numCasa, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil], function(error, results){
                     if(error){
                         console.log("Erro na inserção de dados pessoais: "+error);
                         res.json(error);
@@ -201,7 +204,7 @@ var obj = {
             }
         });
     },
-
+///////////////////////////busca de todos os dados pessoais /////////////////////////
     visualizaDadosPessoais: function(res, email){
         connection.query(selectDadosPessoais, [email], function(err, results){
             if(err){
@@ -211,6 +214,7 @@ var obj = {
             }
         });
     },
+//////////////////////////////busca de dados profissionais ////////////////////////////////////
     visualizarDadosProfissionais: function(res, email){
         connection.query(selectDadosProfissionais, [email], function(err, results){
             if(err){
@@ -220,10 +224,21 @@ var obj = {
             }
         });
     },
+//////////////////////////////busca de dados localizacao ///////////////////////////////////
     visualizarLocalizacao: function(res, email){
         connection.query(selectLocalizacao, [email], function(err, results){
             if(err){
                 console.log("Erro na busca: "+err);
+            } else {
+                res.json(results);
+            }
+        });
+    },
+/////////////////////////////////retorna dados de localizacao dos usuarios //////////////////////
+    localizacaoGeral: function(res){
+        connection.query(localizacaoGeral, function(err, results){
+            if(err){
+                console.log("erro na busca de localizacoes: "+err);
             } else {
                 res.json(results);
             }

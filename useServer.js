@@ -3,8 +3,10 @@ const bodyParser = require('body-parser');
 const app = express();
 const dbMysql = require('./mysqlDB/mysqlDB.js');
 const crypto = require('./criptografia/criptografia.js');
-const port = 3000;
+var port = process.env.PORT || 3398; //porta para internet
 const SHA256 = require('sha256');
+const multer = require('multer');
+let http = require('http').Server(app);
 
 dbMysql.connect();
 
@@ -23,10 +25,13 @@ app.use(function(req, res, next){
 
 const router = express.Router();
 
-//criando as rotas
+router.get('/localizacaoGeral', (req, res) => {
+    dbMysql.localizacaoGeral(res);
+});
+
 router.post('/cadastroUsuario', (req, res) => {
     const email = req.body.email;
-    const senha = crypto.criptografar(req.body.senha);    
+    const senha = crypto.criptografar(req.body.senha);   
     dbMysql.cadastroUsuario(res, email, senha);
 });
 
@@ -65,6 +70,7 @@ router.post('/dadosPessoais', (req, res) => {
     const email = req.body.email;
     const nome = req.body.nome;
     const endereco = req.body.endereco;
+    const numCasa = req.body.numCasa;
     const complemento = req.body.complemento;
     const cidade = req.body.cidade;
     const estado = req.body.estado;
@@ -73,7 +79,7 @@ router.post('/dadosPessoais', (req, res) => {
     const cpf = req.body.cpf;
     const fotoPerfil = req.body.fotoPerfil;
 
-    dbMysql.formPessoal(res, email, nome, endereco, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil);
+    dbMysql.formPessoal(res, email, nome, endereco, numCasa, complemento, cidade, estado, bairro, telefone, cpf, fotoPerfil);
 });
 
 router.post('/dadosProfissionais', (req, res) => {
@@ -95,21 +101,15 @@ router.post('/localizacaoUsuario', (req, res) => {
 });
 
 router.post('/visualizarDadosPessoais', (req, res) => {
-    const email = req.body.email;
-    console.log(email);
-    
+    const email = req.body.email;    
     dbMysql.visualizaDadosPessoais(res, email);
 });
 router.post('/visualizarDadosProfissionais', (req, res) => {
-    const email = req.body.email;
-    console.log(email);
-    
+    const email = req.body.email;    
     dbMysql.visualizarDadosProfissionais(res, email);
 });
 router.post('/visualizarLocalizacao', (req, res) => {
-    const email = req.body.email;
-    console.log(email);
-    
+    const email = req.body.email;    
     dbMysql.visualizarLocalizacao(res, email);
 });
 router.get('/buscaProfissoes', (req, res) => {
@@ -120,6 +120,6 @@ router.get('/buscaProfissoes', (req, res) => {
 
 app.use('/', router);
 
-app.listen(port, function(){
+http.listen(port, function(){
     console.log('Servidor rodando na porta: '+ port);
 });
